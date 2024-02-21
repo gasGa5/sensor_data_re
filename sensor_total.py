@@ -27,11 +27,10 @@ totalflow = 0
 p_1liter = 5880 / 2
 
 # current data send time 
-last_data_sent_time = time.time()
+last_data_sent_time = datetime.datetime.now()
 
 try:
     while is_running:
-        current_time = time.time()
         try:
             # DHT11 센서에서 온도 및 습도 읽기
             temperature_c = dhtDevice.temperature
@@ -100,13 +99,14 @@ try:
             "vibe2": np.random.normal(0, 2)
         }
 
+        current_time_s = datetime.datetime.now()
+
         # 3 second interval
-        if current_time - last_data_sent_time >= 3:
+        if (current_time - last_data_sent_time).total_seconds() >= 3:
             response = send_data(data)
             print("code: ", response)
 
             last_data_sent_time = current_time
-
 
 except KeyboardInterrupt:
     print("Program interrupted by user.")

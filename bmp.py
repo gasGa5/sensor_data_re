@@ -199,3 +199,4 @@ while True:
     print ("Temperature : ", temp, " C")
     print ("Pressure = ", pressure, "(", pressure / 100, " hPa)")
     print ("Altitude : ", altitude, " Meter")
+    time.sleep(1)
