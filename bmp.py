@@ -96,9 +96,9 @@ def read_raw_Temperature():
 def read_raw_Pressure():
     bus.write_byte_data(address, REGISTER_CONTROL, COMMAND_READPRESSURE + (mode << 6))
     time.sleep(0.03)  # Sleep 30ms
-    msb = read_byte(REGISTER_PRESSUREDATA, bus)
-    lsb = read_byte(REGISTER_PRESSUREDATA + 1, bus)
-    nxt = read_byte(REGISTER_PRESSUREDATA + 2, bus)
+    msb = read_byte(REGISTER_PRESSUREDATA)
+    lsb = read_byte(REGISTER_PRESSUREDATA + 1)
+    nxt = read_byte(REGISTER_PRESSUREDATA + 2)
     raw = ((msb << 16) + (lsb << 8) + nxt) >> (8 - mode)
     print ("Raw Pressure: 0x%04X (%d)" % (raw & 0xFFFF, raw))
     return raw
