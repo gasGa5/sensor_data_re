@@ -187,18 +187,20 @@ def read_Altitude(seaLevelPressure=101325):
     altitude = 44330.0 * (1.0 - pow(pressure / seaLevelPressure, 0.1903))
     print ("Altitude = ",  altitude)
     return altitude
- 
-# smbus 초기화 함수. Revision2에서는 파라미터 1을 사용
-while True:
-    bus = smbus.SMBus(1)
+
+if __name__ == "__main__":
+    # smbus 초기화 함수. Revision2에서는 파라미터 1을 사용
+    while True:
+        bus = smbus.SMBus(1)
+        
+        init_Calibration_Data()
+        temp = read_Temperature()
+        pressure = read_Pressure()
+        altitude = read_Altitude()
+        
+        print ("======== Result =======")
+        print ("Temperature : ", temp, " C")
+        print ("Pressure = ", pressure, "(", pressure / 100, " hPa)")
+        print ("Altitude : ", altitude, " Meter")
+        time.sleep(1.0)
     
-    init_Calibration_Data()
-    temp = read_Temperature()
-    pressure = read_Pressure()
-    altitude = read_Altitude()
-    
-    print ("======== Result =======")
-    print ("Temperature : ", temp, " C")
-    print ("Pressure = ", pressure, "(", pressure / 100, " hPa)")
-    print ("Altitude : ", altitude, " Meter")
-    time.sleep(1.0)

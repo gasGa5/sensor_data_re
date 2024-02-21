@@ -5,6 +5,9 @@ import RPi.GPIO as GPIO
 import requests
 import numpy as np
 import datetime
+
+import bmp
+
 from network.push_dat import send_data
 
 # DHT 센서 및 GPIO 핀 설정
@@ -79,6 +82,14 @@ try:
         
         print("Vibration count:", vibration_count)
 
+        # air presure
+        bus = bmp.smbus.SMBus(1)
+    
+        bmp.init_Calibration_Data()
+        # temp = bmp.read_Temperature()
+        pressure = bmp.read_Pressure()
+        # altitude = bmp.read_Altitude()
+
         current_time = datetime.datetime.now()
         unix_timestamp = int(time.mktime(current_time.timetuple())) * 1000  
         data = {
@@ -89,7 +100,7 @@ try:
             "flux2": np.random.normal(10, 1),
             "flux3": np.random.normal(10, 1),
             "flux4": np.random.normal(10, 1),
-            "flex": np.random.normal(5, 0.5),
+            "flex": pressure if 'pressure' in locals() else 1, # idk default of preasure
             "air_quality": gas_value if 'gas_value' in locals() else np.random.randint(0, 501), # get input
             "tilt1": np.random.normal(0, 5),
             "tilt2": np.random.normal(0, 5),
