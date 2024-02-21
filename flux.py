@@ -1,40 +1,36 @@
 import RPi.GPIO as GPIO
 import time
 
-flow_sensor_pin = 20  # YF-S401 센서의 펄스 출력 핀에 연결된 GPIO 핀 번호
+flowPin = 20
+flowRate = 0.0
+total_flow = 0.0
+count = 0
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(flow_sensor_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+def setup():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(flowPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.add_event_detect(flowPin, GPIO.RISING, callback=flow_callback, bouncetime=20)
+    print("Setup complete")
 
-flow_rate = 0.0
-total_liters = 0.0
-last_read_time = time.time()
+def loop():
+    global count,total_flow
+    count = 0
+    time.sleep(1)
+    flowRate = count * 0.27
+    # flowRate *= 60
+    # flowRate /= 1000
+    # print(count)
+    total_flow = total_flow + flowRate 
+    print(f'flowrate:{flowRate} mL/sec')
+    print(f'total_flow:{total_flow} mL')
+def flow_callback(channel):
+    global count
+    count += 1
 
-def pulse_callback(channel):
-    global flow_rate, total_liters, last_read_time
-    if GPIO.input(channel):
-        flow_rate += 1.0
-    else:
-        liters_per_pulse = 4.5  # YF-S401 센서의 1 펄스 당 유량 (예시 값)
-        flow_rate -= 1.0 / liters_per_pulse
-
-        if flow_rate < 0.0:
-            flow_rate = 0.0
-
-        total_liters += (1.0 / liters_per_pulse)
-        last_read_time = time.time()
-
-GPIO.add_event_detect(flow_sensor_pin, GPIO.BOTH, callback=pulse_callback)
-
-while True:
+if __name__ == '__main__':
+    setup()
     try:
-        time.sleep(1)
-        current_time = time.time()
-        time_elapsed = current_time - last_read_time
-        if time_elapsed >= 5.0:  # 5초 동안 펄스가 없으면 유량을 0으로 간주
-            flow_rate = 0.0
-        print("유량: {:.2f} L/min, 누적 유량: {:.2f} L".format(flow_rate, total_liters))
+        while True:
+            loop()
     except KeyboardInterrupt:
-        break
-
-GPIO.cleanup()
+        GPIO.cleanup()

@@ -17,12 +17,18 @@ led_pin = 25
 pulse_pin = 20
 vibration_pin = 18
 
-# GPIO 설정
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(gas_pin, GPIO.IN)
-GPIO.setup(led_pin, GPIO.OUT)
-GPIO.setup(pulse_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(vibration_pin, GPIO.IN)
+def setup():
+    # GPIO 설정
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(gas_pin, GPIO.IN)
+    GPIO.setup(led_pin, GPIO.OUT)
+    GPIO.setup(pulse_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(vibration_pin, GPIO.IN)
+    GPIO.add_event_detect(gas_pin, GPIO.RISING, callback=flow_callback, bouncetime=20)
+    GPIO.add_event_detect(led_pin, GPIO.RISING, callback=flow_callback, bouncetime=20)
+    GPIO.add_event_detect(pulse_pin, GPIO.RISING, callback=flow_callback, bouncetime=20)
+    GPIO.add_event_detect(vibration_pin, GPIO.RISING, callback=flow_callback, bouncetime=20)
+    
 
 # 변수 초기화
 is_running = True

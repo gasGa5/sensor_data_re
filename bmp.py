@@ -83,7 +83,6 @@ def init_Calibration_Data():
     print ("  AC1:", AC1,"  AC2:", AC2,"  AC3:", AC3,"  AC4:", AC4,"  AC5:", AC5,"  AC6:", AC6)
     print ("  B1:", B1,"  B2:", B2,"  MB:", MB,"  MC:", MC,"  MD:", MD)
  
- 
 #BMP180에서 보정전 온도 데이터를 읽음
 def read_raw_Temperature():
     bus.write_byte_data(address, REGISTER_CONTROL, COMMAND_READTEMP)
@@ -118,9 +117,6 @@ def calibrate_Temp(raw):
     print ("Calibrated temperature = %f C" % temp)
     return temp
 
-
-
-# 기압을 보정함
 # 기압을 보정함
 def calibrate_Pressure(raw):
     UT = 0
