@@ -117,6 +117,7 @@ def calibrate_Temp(raw):
 
 
 # 기압을 보정함
+# 기압을 보정함
 def calibrate_Pressure(raw):
     UT = 0
     UP = 0
@@ -151,8 +152,8 @@ def calibrate_Pressure(raw):
     B4 = (AC4 * (X3 + (1 << 15))) >> 15
     B7 = (UP - B3) * (50000 >> mode)
 
-    if B7 < 0x80000000:
-        p = (B7 * 2) / B4
+    if B7 < 0:
+        p = (abs(B7) * 2) / B4
     else:
         p = (B7 / B4) * 2
 
@@ -162,7 +163,8 @@ def calibrate_Pressure(raw):
 
     p = p + ((X1 + X2 + 3791) >> 4)
     print("Pressure =", p)
-    return p
+    return abs(p)  # Ensure positive pressure value
+
 
  
 #기압을 읽은 후 보정함
@@ -199,4 +201,4 @@ while True:
     print ("Temperature : ", temp, " C")
     print ("Pressure = ", pressure, "(", pressure / 100, " hPa)")
     print ("Altitude : ", altitude, " Meter")
-    time.sleep(1)
+    time.sleep(1.0)
