@@ -39,7 +39,6 @@ try:
             temperature_c = dhtDevice.temperature
             temperature_f = temperature_c * 9 / 5 + 32
             humidity = dhtDevice.humidity
-            print("Temperature: {:.1f} F / {:.1f} C\tHumidity: {}%".format(temperature_f, temperature_c, humidity))
         except RuntimeError as error:
             print("Failed to read DHT11 sensor data:", error)
         
@@ -66,9 +65,6 @@ try:
         pulse_counted = count / 2
         flow_rate = pulse_counted / p_1liter * 1000
         totalflow += pulse_counted
-        print("Number of pulses:", pulse_counted)
-        print("Flow rate:", flow_rate, "ml/sec")
-        print("Total flow:", totalflow, "ml")
         
         # 진동 센서 읽기
         start_time = time.time()
@@ -80,8 +76,6 @@ try:
                 vibration_count += 1
             time.sleep(0.1)
         
-        print("Vibration count:", vibration_count)
-
         # air presure
         bus = bmp.smbus.SMBus(1)
     
@@ -96,11 +90,11 @@ try:
             "time": [unix_timestamp],
             "temperature": temperature_c if 'temperature_c' in locals() else np.random.normal(20, 2), # get input
             "humidity": humidity if 'humidity' in locals() else np.random.normal(50, 5), # get input
-            "flux1": np.random.normal(10, 1),
+            "flux1": flow_rate if 'flow_rate' in locals() else np.random.normal(10, 1),
             "flux2": np.random.normal(10, 1),
             "flux3": np.random.normal(10, 1),
             "flux4": np.random.normal(10, 1),
-            "flex": pressure if 'pressure' in locals() else 1, # idk default of preasure
+            "flex": abs(pressure) if 'pressure' in locals() else 1, # idk default of preasure
             "air_quality": gas_value if 'gas_value' in locals() else np.random.randint(0, 501), # get input
             "tilt1": np.random.normal(0, 5),
             "tilt2": np.random.normal(0, 5),
@@ -116,6 +110,12 @@ try:
         if (current_time - last_data_sent_time).total_seconds() >= 3:
             response = send_data(data)
             print("code: ", response)
+            print("Temperature: {:.1f} F / {:.1f} C\tHumidity: {}%".format(temperature_f, temperature_c, humidity))
+            print("Vibration count:", vibration_count)
+
+            # print("Number of pulses:", pulse_counted)
+            print("Flow rate:", flow_rate, "ml/sec")
+            print("Total flow:", totalflow, "ml")
 
             last_data_sent_time = current_time
 
