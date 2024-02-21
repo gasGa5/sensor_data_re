@@ -7,6 +7,7 @@ import numpy as np
 import datetime
 
 import bmp
+from data.data_dcl import insert_sensor_data, create_sensor_data_table
 
 from network.push_dat import send_data
 
@@ -31,6 +32,8 @@ p_1liter = 5880 / 2
 
 # current data send time 
 last_data_sent_time = datetime.datetime.now()
+
+create_sensor_data_table()
 
 try:
     while is_running:
@@ -104,18 +107,32 @@ try:
             "vibe2": np.random.normal(0, 2)
         }
 
+        # filtering in locals
+        filtered_data = {
+            "time": [unix_timestamp],
+            "temperature": temperature_c if 'temperature_c' in locals() else np.random.normal(20, 2), # get input
+            "humidity": humidity if 'humidity' in locals() else np.random.normal(50, 5), # get input
+            "flux1": flow_rate if 'flow_rate' in locals() else np.random.normal(10, 1),
+            "flex": abs(pressure) if 'pressure' in locals() else 1, # idk default of preasure
+            "air_quality": gas_value if 'gas_value' in locals() else np.random.randint(0, 501), # get input
+            "vibe1": vibration_count if 'vibration_count' in locals() else np.random.normal(0, 2), # get input
+        }
+
         current_time_s = datetime.datetime.now()
 
         # 3 second interval
         if (current_time - last_data_sent_time).total_seconds() >= 3:
-            response = send_data(data)
-            print("code: ", response)
             print("Temperature: {:.1f} F / {:.1f} C\tHumidity: {}%".format(temperature_f, temperature_c, humidity))
             print("Vibration count:", vibration_count)
 
             # print("Number of pulses:", pulse_counted)
             print("Flow rate:", flow_rate, "ml/sec")
             print("Total flow:", totalflow, "ml")
+
+            response = send_data(data)
+            
+            print("code: ", response)
+            insert_sensor_data(unix_timestamp, data)
 
             last_data_sent_time = current_time
 
