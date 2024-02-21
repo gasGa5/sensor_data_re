@@ -26,8 +26,12 @@ is_running = True
 totalflow = 0
 p_1liter = 5880 / 2
 
+# current data send time 
+last_data_sent_time = time.time()
+
 try:
     while is_running:
+        current_time = time.time()
         try:
             # DHT11 센서에서 온도 및 습도 읽기
             temperature_c = dhtDevice.temperature
@@ -95,11 +99,14 @@ try:
             "vibe1": vibration_count if 'vibration_count' in locals() else np.random.normal(0, 2), # get input
             "vibe2": np.random.normal(0, 2)
         }
-        response = send_data(data)
 
-        print("code : ", response)
+        # 3 second interval
+        if current_time - last_data_sent_time >= 3:
+            response = send_data(data)
+            print("code: ", response)
 
-        time.sleep(3) # just interval
+            last_data_sent_time = current_time
+
 
 except KeyboardInterrupt:
     print("Program interrupted by user.")

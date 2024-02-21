@@ -187,14 +187,15 @@ def read_Altitude(seaLevelPressure=101325):
     return altitude
  
 # smbus 초기화 함수. Revision2에서는 파라미터 1을 사용
-bus = smbus.SMBus(1)
- 
-init_Calibration_Data()
-temp = read_Temperature()
-pressure = read_Pressure()
-altitude = read_Altitude()
- 
-print ("======== Result =======")
-print ("Temperature : ", temp, " C")
-print ("Pressure = ", pressure, "(", pressure / 100, " hPa)")
-print ("Altitude : ", altitude, " Meter")
+while True:
+    bus = smbus.SMBus(1)
+    
+    init_Calibration_Data()
+    temp = read_Temperature()
+    pressure = read_Pressure()
+    altitude = read_Altitude()
+    
+    print ("======== Result =======")
+    print ("Temperature : ", temp, " C")
+    print ("Pressure = ", pressure, "(", pressure / 100, " hPa)")
+    print ("Altitude : ", altitude, " Meter")
