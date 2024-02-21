@@ -2,6 +2,10 @@ import time
 import board
 import adafruit_dht
 import RPi.GPIO as GPIO
+import requests
+import numpy as np
+import datetime
+from network.push_dat import send_data
 
 # DHT 센서 및 GPIO 핀 설정
 dhtDevice = adafruit_dht.DHT11(board.D17)
@@ -72,7 +76,35 @@ try:
         
         print("Vibration count:", vibration_count)
 
+        current_time = datetime.datetime.now()
+        unix_timestamp = int(time.mktime(current_time.timetuple())) * 1000  
+        data = {
+            "time": [unix_timestamp],
+            "temperature": temperature_c if 'temperature_c' in locals() else np.random.normal(20, 2), # get input
+            "humidity": humidity if 'humidity' in locals() else np.random.normal(50, 5), # get input
+            "flux1": np.random.normal(10, 1),
+            "flux2": np.random.normal(10, 1),
+            "flux3": np.random.normal(10, 1),
+            "flux4": np.random.normal(10, 1),
+            "flex": np.random.normal(5, 0.5),
+            "air_quality": gas_value if 'gas_value' in locals() else np.random.randint(0, 501), # get input
+            "tilt1": np.random.normal(0, 5),
+            "tilt2": np.random.normal(0, 5),
+            "tilt3": np.random.normal(0, 5),
+            "tilt4": np.random.normal(0, 5),
+            "vibe1": vibration_count if 'vibration_count' in locals() else np.random.normal(0, 2), # get input
+            "vibe2": np.random.normal(0, 2)
+        }
+        response = send_data(data)
+
+        print("code : ", response)
+
+        time.sleep(3) # just interval
+
 except KeyboardInterrupt:
     print("Program interrupted by user.")
+except Exception as e:
+    print("Error : ")
+    print(e)
 finally:
     GPIO.cleanup()
