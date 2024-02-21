@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect('sensor_data.db')
+conn = sqlite3.connect('data/sensor_data.db')
 c = conn.cursor()
 
 def insert_sensor_data(unix_timestamp, locals_data):
@@ -55,7 +55,7 @@ def create_sensor_data_table():
     conn = sqlite3.connect('sensor_data.db')
     c = conn.cursor()
 
-    c.execute('''
+    c.execute("""
         CREATE TABLE IF NOT EXISTS data (
             time INTEGER,
             temperature REAL,
@@ -64,9 +64,9 @@ def create_sensor_data_table():
             flex REAL,
             air_quality REAL,
             tilt1 REAL,
-            vibe1 REAL,
+            vibe1 REAL
         )
-    ''')
+    """)
 
     conn.commit()
     conn.close()
