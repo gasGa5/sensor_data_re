@@ -42,11 +42,15 @@ MD = 0
  
 #BMP180의 I2C 통신 주소
 address = 0x77 
- 
+
+# bus
+bus = smbus.SMBus(1)
+
+
 #레지스터에서 1바이트를 읽음
 def read_byte(adr):
     return bus.read_byte_data(address, adr)
- 
+
 #레지스터에서 2바이트를 읽음
 def read_word(adr):
     high = bus.read_byte_data(address, adr)
@@ -92,9 +96,9 @@ def read_raw_Temperature():
 def read_raw_Pressure():
     bus.write_byte_data(address, REGISTER_CONTROL, COMMAND_READPRESSURE + (mode << 6))
     time.sleep(0.03)  # Sleep 30ms
-    msb = read_byte(REGISTER_PRESSUREDATA)
-    lsb = read_byte(REGISTER_PRESSUREDATA + 1)
-    nxt = read_byte(REGISTER_PRESSUREDATA + 2)
+    msb = read_byte(REGISTER_PRESSUREDATA, bus)
+    lsb = read_byte(REGISTER_PRESSUREDATA + 1, bus)
+    nxt = read_byte(REGISTER_PRESSUREDATA + 2, bus)
     raw = ((msb << 16) + (lsb << 8) + nxt) >> (8 - mode)
     print ("Raw Pressure: 0x%04X (%d)" % (raw & 0xFFFF, raw))
     return raw
@@ -189,18 +193,15 @@ def read_Altitude(seaLevelPressure=101325):
     return altitude
 
 if __name__ == "__main__":
-    # smbus 초기화 함수. Revision2에서는 파라미터 1을 사용
     while True:
-        bus = smbus.SMBus(1)
-        
+
         init_Calibration_Data()
         temp = read_Temperature()
         pressure = read_Pressure()
         altitude = read_Altitude()
-        
+
         print ("======== Result =======")
         print ("Temperature : ", temp, " C")
         print ("Pressure = ", pressure, "(", pressure / 100, " hPa)")
         print ("Altitude : ", altitude, " Meter")
         time.sleep(1.0)
-    
