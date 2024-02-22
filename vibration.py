@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-SENSOR_PIN=18	# data pin number
+SENSOR_PIN=24	# data pin number
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(SENSOR_PIN, GPIO.IN)
 
@@ -18,6 +18,7 @@ try:
 
 		while time.time() - start_time < 1:
 			input_state = GPIO.input(SENSOR_PIN)
+			print(input_state)
 			if input_state == GPIO.HIGH:
 				vibration_count += 1
 			time.sleep(0.1)
