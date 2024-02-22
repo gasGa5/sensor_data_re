@@ -70,6 +70,15 @@ class sensor_read():
         print(f'vibration:{self.vibration_count}')
         print(f'flowrate:{self.flowRate} mL/sec')
         print(f'total_flow:{self.total_flow} mL\n')
+
+        return {
+            "temparature" : self.temperature_c,
+            "humidity" : self.humidity,
+            "presure" : self.pressure,
+            "vibration" : self.vibration_count, # hz
+            "flowRate":self.flowRate,
+            "gas_value": self.gas_value # 0,1
+        }
             
     def flow_callback(self,channel):
         self.flow_count += 1
@@ -96,46 +105,41 @@ class sensor_read():
         self.vibration_count += 1
 
     def run(self,):
+        last_data_sent_time = datetime.datetime.now()
         try:
             while self.is_running:
                 try:
-                    self.sensor_loop()
+                    sensor_data = self.sensor_loop()
+
+                    current_time = datetime.datetime.now()
+                    unix_timestamp = int(time.mktime(current_time.timetuple())) * 1000  
+
+
+                    data = {
+                        "time": [unix_timestamp],
+                        "temperature": sensor_data["temparature"], # get input
+                        "humidity":  sensor_data["humidity"], # get input
+                        "flux1": sensor_data["flowRate"],
+                        "flux2": np.random.normal(10, 1),
+                        "flux3": np.random.normal(10, 1),
+                        "flux4": np.random.normal(10, 1),
+                        "flex": abs(sensor_data["presure"]), # idk default of preasure
+                        "air_quality": sensor_data["gas_value"], # get input
+                        "tilt1": np.random.normal(0, 5),
+                        "tilt2": np.random.normal(0, 5),
+                        "tilt3": np.random.normal(0, 5),
+                        "tilt4": np.random.normal(0, 5),
+                        "vibe1": sensor_data["vibration"], # get input
+                        "vibe2": np.random.normal(0, 2)
+                    }
+
+                    # 3 second interval
+                    if (current_time - last_data_sent_time).total_seconds() >= 3:
+                        response = send_data(data)
+                        print("response : ", response)
+                        last_data_sent_time = current_time
                 except RuntimeError as error:
                     print("Failed to read sensor data:", error)
-        # current_time = datetime.datetime.now()
-        # unix_timestamp = int(time.mktime(current_time.timetuple())) * 1000  
-        # data = {
-        #     "time": [unix_timestamp],
-        #     "temperature": temperature_c if 'temperature_c' in locals() else np.random.normal(20, 2), # get input
-        #     "humidity": humidity if 'humidity' in locals() else np.random.normal(50, 5), # get input
-        #     "flux1": flow_rate if 'flow_rate' in locals() else np.random.normal(10, 1),
-        #     "flux2": np.random.normal(10, 1),
-        #     "flux3": np.random.normal(10, 1),
-        #     "flux4": np.random.normal(10, 1),
-        #     "flex": abs(pressure) if 'pressure' in locals() else 1, # idk default of preasure
-        #     "air_quality": gas_value if 'gas_value' in locals() else np.random.randint(0, 501), # get input
-        #     "tilt1": np.random.normal(0, 5),
-        #     "tilt2": np.random.normal(0, 5),
-        #     "tilt3": np.random.normal(0, 5),
-        #     "tilt4": np.random.normal(0, 5),
-        #     "vibe1": vibration_count if 'vibration_count' in locals() else np.random.normal(0, 2), # get input
-        #     "vibe2": np.random.normal(0, 2)
-        # }
-
-        # current_time_s = datetime.datetime.now()
-
-        # # 3 second interval
-        # if (current_time - last_data_sent_time).total_seconds() >= 3:
-        #     response = send_data(data)
-        #     print("code: ", response)
-        #     print("Temperature: {:.1f} F / {:.1f} C\tHumidity: {}%".format(temperature_f, temperature_c, humidity))
-        #     print("Vibration count:", vibration_count)
-        #     print(f"pressure:{pressure}")
-        #     # print("Number of pulses:", pulse_counted)
-        #     print("Flow rate:", flow_rate, "ml/sec")
-        #     print("Total flow:", totalflow, "ml")
-        
-        #     last_data_sent_time = current_time
 
         except KeyboardInterrupt:
             print("Program interrupted by user.")
