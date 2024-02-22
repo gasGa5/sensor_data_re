@@ -31,8 +31,8 @@ GPIO.setup(vibration_pin, GPIO.IN)
 # state and constant
 is_running = True
 totalflow = 0
-# flow filter
-p_1liter = 5880 / 2
+# flow filter (is )
+# p_1liter = 5880 / 2
 # for flux
 count = 0
 
@@ -40,6 +40,7 @@ count = 0
 last_data_sent_time = datetime.datetime.now()
 
 async def main():
+    global last_data_sent_time, is_running, totalflow, dhtDevice,gas_pin,led_pin,vibration_pin
     try:
         while is_running:
             try:
