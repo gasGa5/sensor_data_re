@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 
 # SW-420 센서가 연결된 GPIO 핀 번호
-sensor_pin = 24
+sensor_pin = 22
 
 # 진동 감지 횟수 초기화
 vibration_count = 0
@@ -16,7 +16,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(sensor_pin, GPIO.IN)
 
 # 진동 감지 이벤트 핸들러 등록
-GPIO.add_event_detect(sensor_pin, GPIO.LOW, callback=vibration_callback, bouncetime = 300)
+GPIO.add_event_detect(sensor_pin, GPIO.RISING, callback=vibration_callback, bouncetime = 100)
 
 try:
     while True:

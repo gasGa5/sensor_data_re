@@ -17,13 +17,14 @@ from network.push_dat import send_data
 
 class sensor_read():
     def __init__(self,):
-        self.dhtDevice = adafruit_dht.DHT11(board.D17)
+        self.dhtDevice = adafruit_dht.DHT11(board.D27)
         self.bmp = bmp180(0x77) 
         self.interval_time = 1
-        self.gas_pin = 23
-        self.led_pin = 6
-        self.pulse_pin = 20
-        self.vibration_pin = 18
+        self.gas_pin1 = 17
+        self.gas_pin2 = 24
+        self.led_pin = 25
+        self.pulse_pin = 23
+        self.vibration_pin = 22
         self.flowRate = 0.0
         self.total_flow = 0.0
         self.flow_count = 0
@@ -38,14 +39,16 @@ class sensor_read():
     def setup(self,) -> None:
         # GPIO 설정
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.gas_pin, GPIO.IN)
+        GPIO.setup(self.gas_pin1, GPIO.IN)
+        GPIO.setup(self.gas_pin2, GPIO.IN)
         GPIO.setup(self.led_pin, GPIO.OUT)
         GPIO.setup(self.pulse_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.vibration_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(self.gas_pin, GPIO.RISING, callback=self.gas_interrupt_callback, bouncetime=200)
-        # GPIO.add_event_detect(led_pin, GPIO.RISING, callback=flow_callback, bouncetime=20)
+        GPIO.add_event_detect(self.gas_pin1, GPIO.FALLING, callback=self.gas1_interrupt_callback, bouncetime=200)
+        GPIO.add_event_detect(self.gas_pin2, GPIO.FALLING, callback=self.gas2_interrupt_callback, bouncetime=200)
+        # GPIO.add_event_detect(self.led_pin, GPIO.RISING, callback=flow_callback, bouncetime=20)
         GPIO.add_event_detect(self.pulse_pin, GPIO.RISING, callback=self.flow_callback, bouncetime=20)
-        GPIO.add_event_detect(self.vibration_pin, GPIO.BOTH, callback=self.vibration_interrupt_callback, bouncetime=1)
+        GPIO.add_event_detect(self.vibration_pin, GPIO.RISING, callback=self.vibration_interrupt_callback, bouncetime=300)
          
     def sensor_loop(self,) -> None:
         self.flow_count = 0
@@ -55,16 +58,18 @@ class sensor_read():
         self.flowRate = self.flow_count * self.mL_per_pulse
         self.total_flow = self.total_flow + self.flowRate
         self.pressure = self.bmp.get_pressure()/101325
-        self.DHT11_read() 
+        self.DHT11_read()
         if self.gas_value == 1:
             print(f'Gas Sensor - Detected')
+            GPIO.output(self.led_pin, GPIO.HIGH)
         else:
             print("Gas Sensor - Not Detected")
+            GPIO.output(self.led_pin, GPIO.LOW)
         print(f'temperature_c:{self.temperature_c} , humidity:{self.humidity}')
         print(f'pressure:{self.pressure}')
         print(f'vibration:{self.vibration_count}')
         print(f'flowrate:{self.flowRate} mL/sec')
-        print(f'total_flow:{self.total_flow} mL')
+        print(f'total_flow:{self.total_flow} mL\n')
             
     def flow_callback(self,channel):
         self.flow_count += 1
@@ -74,19 +79,19 @@ class sensor_read():
             # DHT11 센서에서 온도 및 습도 읽기
             self.temperature_c = self.dhtDevice.temperature
             self.humidity = self.dhtDevice.humidity
+        
         except RuntimeError as error:
             print("Failed to read DHT11 sensor data:", error)
+             
 
-    def gas_interrupt_callback(self,channel):
+    def gas1_interrupt_callback(self,channel):
         # 가스 센서 읽기
-        self.gas_value = GPIO.input(self.gas_pin)
-        # if self.gas_value == 1:
-        #     GPIO.output(self.led_pin, GPIO.HIGH)
-        #     print("Gas Sensor - Detected")
-        # else:
-        #     GPIO.output(self.led_pin, GPIO.LOW)
-        #     print("Gas Sensor - Not Detected")
-            
+        self.gas_value = 1
+        
+    def gas2_interrupt_callback(self,channel):
+        self.gas_value = 1
+        print('gas2')
+      
     def vibration_interrupt_callback(self,channel):
         self.vibration_count += 1
 
