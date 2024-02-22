@@ -44,11 +44,11 @@ class sensor_read():
         GPIO.setup(self.led_pin, GPIO.OUT)
         GPIO.setup(self.pulse_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.vibration_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(self.gas_pin1, GPIO.FALLING, callback=self.gas1_interrupt_callback, bouncetime=200)
-        GPIO.add_event_detect(self.gas_pin2, GPIO.FALLING, callback=self.gas2_interrupt_callback, bouncetime=200)
+        GPIO.add_event_detect(self.gas_pin1, GPIO.FALLING, callback=self.gas1_interrupt_callback, bouncetime=100)
+        GPIO.add_event_detect(self.gas_pin2, GPIO.FALLING, callback=self.gas2_interrupt_callback, bouncetime=100)
         # GPIO.add_event_detect(self.led_pin, GPIO.RISING, callback=flow_callback, bouncetime=20)
         GPIO.add_event_detect(self.pulse_pin, GPIO.RISING, callback=self.flow_callback, bouncetime=20)
-        GPIO.add_event_detect(self.vibration_pin, GPIO.RISING, callback=self.vibration_interrupt_callback, bouncetime=300)
+        GPIO.add_event_detect(self.vibration_pin, GPIO.RISING, callback=self.vibration_interrupt_callback, bouncetime=100)
          
     def sensor_loop(self,) -> None:
         self.flow_count = 0
@@ -134,7 +134,7 @@ class sensor_read():
                     }
 
                     # 3 second interval
-                    if (current_time - last_data_sent_time).total_seconds() >= 3:
+                    if (current_time - last_data_sent_time).total_seconds() >= 0.5:
                         response = send_data(data)
                         print("response : ", response)
                         last_data_sent_time = current_time
