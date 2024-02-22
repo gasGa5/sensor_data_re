@@ -3,14 +3,14 @@ import board
 import adafruit_dht
 import RPi.GPIO as GPIO
 
-dhtDevice=adafruit_dht.DHT11(board.D17)
+dhtDevice=adafruit_dht.DHT11(board.D27)
 
-gas_pin=23
-led_pin=25
+gas_pin=17
+# led_pin=25
 GPIO.setmode(GPIO.BCM)
 is_running=True
 GPIO.setup(gas_pin, GPIO.IN)
-GPIO.setup(led_pin ,GPIO.OUT)
+# GPIO.setup(led_pin ,GPIO.OUT)
 
 try:
 	while True:
@@ -24,10 +24,10 @@ try:
 		
 		gas_value=GPIO.input(gas_pin)
 		if gas_value==1:
-			GPIO.output(led_pin,GPIO.HIGH)
+			# GPIO.output(led_pin,GPIO.HIGH)
 			print("Gas Sensor - Detected")
 		else:
-			GPIO.output(led_pin,GPIO.LOW)
+			# GPIO.output(led_pin,GPIO.LOW)
 			print("Gas Sensor - Not Detected")
 
 		time.sleep(2.0)
