@@ -53,12 +53,7 @@ async def main():
 
             # gas digital input
             gas_value = GPIO.input(gas_pin)
-            if gas_value == 1:
-                GPIO.output(led_pin, GPIO.HIGH)
-                print("Gas Sensor - Detected")
-            else:
-                GPIO.output(led_pin, GPIO.LOW)
-                print("Gas Sensor - Not Detected")
+            print(f"Gas Digital Value : {gas_value}")
 
             #########################################
             # pulse for flow input
