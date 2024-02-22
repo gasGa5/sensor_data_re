@@ -1,10 +1,8 @@
 import sqlite3
 
-conn = sqlite3.connect('data/sensor_data.db')
-c = conn.cursor()
 
 def insert_sensor_data(unix_timestamp, locals_data):
-    conn = sqlite3.connect('sensor_data.db')
+    conn = sqlite3.connect('data/sensor_data.db')
     c = conn.cursor()
 
     data_to_insert = {
@@ -30,7 +28,7 @@ def insert_sensor_data(unix_timestamp, locals_data):
 
 def fetch_all_sensor_data():
     # 데이터베이스 연결 생성
-    conn = sqlite3.connect('sensor_data.db')
+    conn = sqlite3.connect('data/sensor_data.db')
     c = conn.cursor()
 
     # 모든 데이터를 검색하는 SQL 쿼리
@@ -52,7 +50,7 @@ import sqlite3
 
 def create_sensor_data_table():
     # 데이터베이스 연결 생성
-    conn = sqlite3.connect('sensor_data.db')
+    conn = sqlite3.connect('data/sensor_data.db')
     c = conn.cursor()
 
     c.execute("""

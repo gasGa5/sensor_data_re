@@ -100,7 +100,7 @@ def read_raw_Pressure():
     lsb = read_byte(REGISTER_PRESSUREDATA + 1)
     nxt = read_byte(REGISTER_PRESSUREDATA + 2)
     raw = ((msb << 16) + (lsb << 8) + nxt) >> (8 - mode)
-    print ("Raw Pressure: 0x%04X (%d)" % (raw & 0xFFFF, raw))
+    #print ("Raw Pressure: 0x%04X (%d)" % (raw & 0xFFFF, raw))
     return raw
  
  
@@ -118,57 +118,44 @@ def calibrate_Temp(raw):
     print ("Calibrated temperature = %f C" % temp)
     return temp
 
-
-
-# 기압을 보정함
 # 기압을 보정함
 def calibrate_Pressure(raw):
-    UT = 0
-    UP = 0
-    B3 = 0
-    B5 = 0
-    B6 = 0
-    X1 = 0
-    X2 = 0
-    X3 = 0
-    p = 0
-    B4 = 0
-    B7 = 0
-
     UT = read_raw_Temperature()
     UP = raw
 
     # True Temperature Calculations
-    X1 = ((UT - AC6) * AC5) / (1 << 15)
-    X2 = (MC * (1 << 11)) / (X1 + MD)
+    X1 = ((UT - AC6) * AC5) / 32768
+    X2 = (MC * 2048) / (X1 + MD)
     B5 = X1 + X2
 
     # Pressure Calculations
     B6 = B5 - 4000
-    X1 = (B2 * int(B6 * B6) >> 12) >> 11
-    X2 = (AC2 * int(B6)) >> 11
-    X3 = (X1 + X2) >> 2
-    B3 = (((AC1 * 4 + X3) << mode) + 2) >> 2
+    X1 = (B2 * (B6 * B6) / 4096) / 2048
+    X2 = (AC2 * B6) / 2048
+    X3 = X1 + X2
+    B3 = ((AC1 * 4 + X3) * 2 + 2) / 4
 
-    X1 = (AC3 * int(B6)) >> 13
-    X2 = (B1 * (int(B6 * B6) >> 12)) >> 16
-    X3 = (X1 + X2 + 2) >> 2
-    B4 = (AC4 * (X3 + (1 << 15))) >> 15
-    B7 = (UP - B3) * (50000 >> mode)
+    X1 = (AC3 * B6) / 8192
+    X2 = (B1 * (B6 * B6 / 4096)) / 65536
+    X3 = (X1 + X2 + 2) / 4
+    B4 = (AC4 * (X3 + 32768)) / 32768
+    B7 = ((UP - B3) * (50000 >> mode))
 
-    if B7 < 0:
-        p = (abs(B7) * 2) / B4
+    if MD != 0:
+        if B7 < 0x80000000:
+            p = (B7 * 2) / B4
+        else:
+            p = (B7 / B4) * 2
+
+        X1 = (p / 256) * (p / 256)
+        X1 = (X1 * 3038) / 65536
+        X2 = (-7357 * p) / 65536
+
+        p = p + ((X1 + X2 + 3791) / 65536)
+        return p
     else:
-        p = (B7 / B4) * 2
-
-    X1 = int(int(p) >> 8) * int(int(p) >> 8)
-    X1 = (X1 * 3038) >> 16
-    X2 = int(-7357 * p) >> 16
-
-    p = p + ((X1 + X2 + 3791) >> 4)
-    print("Pressure =", p)
-    return abs(p)  # Ensure positive pressure value
-
+        print("MD value is 0. Cannot calculate pressure.")
+        return None
 
  
 #기압을 읽은 후 보정함
